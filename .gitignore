@@ -1,0 +1,6 @@
+node_modules/
+.recipes/
+dist/
+.claude/settings.local.json
+coverage
+*.mcpb

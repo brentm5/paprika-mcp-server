@@ -1,0 +1,56 @@
+{
+  "manifest_version": "0.2",
+  "name": "paprika-mcp-server",
+  "version": "1.0.0",
+  "description": "An MCP server to interact with Paprika Recipe Manager",
+  "long_description": "An MCP server to interact with Paprika Recipe Manager",
+  "author": {
+    "name": "Brent Montague"
+  },
+  "server": {
+    "type": "node",
+    "entry_point": "dist/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/index.js",
+        "mcp",
+        "--recipes-dir",
+        "${user_config.recipes_dir}"
+      ],
+      "env": {}
+    }
+  },
+  "user_config": {
+    "recipes_dir": {
+      "type": "directory",
+      "title": "Recipes Directory",
+      "description": "The directory where exported Paprika Recipes are exported",
+      "sensitive": false,
+      "required": true,
+      "default": ["${HOME}/.paprika/recipes"]
+    }
+  },
+  "tools": [
+    {
+      "name": "search-recipes"
+    },
+    {
+      "name": "list-recipes"
+    }
+  ],
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=22.0.0"
+    }
+  },
+  "keywords": [
+    "paprika",
+    "recipes"
+  ],
+  "license": "Apache-2.0"
+}

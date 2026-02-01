@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "paprika": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "./dist/index.js",
+        "mcp",
+        "--recipes-dir",
+        ".recipes"
+      ],
+      "env": {}
+    }
+  }
+}

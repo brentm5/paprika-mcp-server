@@ -1,0 +1,48 @@
+{
+  "name": "paprika-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server that provides AI assistants access to Paprika Recipe Manager data",
+  "bin": {
+    "paprika-mcp-server": "./dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint",
+    "fix": "eslint --fix",
+    "build": "tsc && node -e \"require('fs').chmodSync('dist/index.js', '755')\"",
+    "start": "tsx src/index.ts"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.19.2",
+    "@types/unzipper": "^0.10.11",
+    "eslint": "^9.39.2",
+    "globals": "^17.3.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "zod": "^4.3.5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.24.3",
+    "@rushstack/ts-command-line": "^5.1.5",
+    "ajv": "^8.17.1",
+    "jiti": "^2.6.1",
+    "rxdb": "^16.21.1",
+    "unzipper": "^0.12.3",
+    "zod-to-json-schema": "^3.25.1"
+  }
+}
