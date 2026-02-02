@@ -7,10 +7,24 @@ version: 2
 updates:
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
+    cooldown: 
+      default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
     schedule:
       interval: "weekly"
+    groups:
+      dependencies:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
   - package-ecosystem: "github-actions" # See documentation for possible values
     directory: ".github/workflows/" # Location of package manifests
+    cooldown: 
+      default-days: 7
+    commit-message:
+      prefix: "chore(deps)"
     schedule:
       interval: "weekly"
 

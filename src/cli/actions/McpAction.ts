@@ -5,6 +5,7 @@ import { RecipeStore } from "../../RecipeStore.js";
 import { BaseMcpTool } from "../../mcp/BaseMcpTool.js";
 import { SearchRecipesTool } from "../../mcp/tools/SearchRecipesTool.js";
 import { ListRecipesTool } from "../../mcp/tools/ListRecipesTool.js";
+import { FileSystemRecipeLoader } from "../../loaders/FileSystemRecipeLoader.js";
 import * as path from "path";
 import * as fs from "fs";
 import { GetRecipeTool } from '../../mcp/tools/GetRecipeTool.js';
@@ -70,8 +71,9 @@ export class McpAction extends CommandLineAction {
       console.error(`  Server name: ${this._serverName.value}`);
     }
 
-    // Create recipe store and load recipes
-    const recipeStore = new RecipeStore(recipesDir);
+    // Create recipe loader and store, then load recipes
+    const recipeLoader = new FileSystemRecipeLoader(recipesDir);
+    const recipeStore = new RecipeStore(recipeLoader);
     await recipeStore.load();
 
     // Create and configure MCP server
