@@ -5,7 +5,7 @@ import { RecipeStore } from "../RecipeStore.js";
 export interface ToolConfig {
   title: string;
   description: string;
-  inputSchema: any;
+  inputSchema: z.ZodType<unknown>;
 }
 
 export interface ToolResult {
@@ -13,12 +13,12 @@ export interface ToolResult {
     type: "text";
     text: string;
   }>;
-  structuredContent?: any;
+  structuredContent?: Record<string, unknown>;
   isError?: boolean;
   [key: string]: unknown;
 }
 
-export abstract class BaseMcpTool<TSchema extends z.ZodObject<any> = z.ZodObject<any>> {
+export abstract class BaseMcpTool<TSchema extends z.ZodObject<z.ZodRawShape> = z.ZodObject<z.ZodRawShape>> {
   abstract get name(): string;
   abstract get config(): ToolConfig;
 
@@ -28,7 +28,7 @@ export abstract class BaseMcpTool<TSchema extends z.ZodObject<any> = z.ZodObject
     server.registerTool(
       this.name,
       this.config,
-      async (params: Record<string, unknown>) => this.execute(params as z.infer<TSchema>, recipeStore)
+      async (params: unknown) => this.execute(params as z.infer<TSchema>, recipeStore)
     );
   }
 }

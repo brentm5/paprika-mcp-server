@@ -124,24 +124,28 @@ export class RecipeStore {
             results.error.forEach(error => {
               console.error(`  * UID ${error.documentId} - Status ${error.status}`);
               if (error.status === 422) {
-                const validationErrors = (error as any).validationErrors;
+                const validationErrors = (error as { validationErrors?: Array<{ instancePath?: string; message?: string }> }).validationErrors;
                 if (Array.isArray(validationErrors)) {
-                  validationErrors.forEach((ve: any) => {
+                  validationErrors.forEach((ve) => {
                     console.error(`     * ${ve.instancePath}: ${ve.message}`);
                   });
                 }
               }
             });
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           // Handle bulk insert errors - log details about which recipes failed
           console.error("Error during bulk insert:");
-          if (error.validationErrors) {
-            console.error("Validation errors:", JSON.stringify(error.validationErrors, null, 2));
+          const bulkError = error as {
+            validationErrors?: unknown;
+            writeErrors?: Array<{ documentInDb?: { uid?: string }; message?: string }>
+          };
+          if (bulkError.validationErrors) {
+            console.error("Validation errors:", JSON.stringify(bulkError.validationErrors, null, 2));
           }
-          if (error.writeErrors) {
-            console.error(`Failed to insert ${error.writeErrors.length} recipes`);
-            error.writeErrors.forEach((writeError: any, index: number) => {
+          if (bulkError.writeErrors) {
+            console.error(`Failed to insert ${bulkError.writeErrors.length} recipes`);
+            bulkError.writeErrors.forEach((writeError, index: number) => {
               console.error(`  [${index}] UID: ${writeError.documentInDb?.uid || 'unknown'}, Error:`, writeError.message);
             });
           } else {

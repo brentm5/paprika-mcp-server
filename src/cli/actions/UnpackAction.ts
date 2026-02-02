@@ -11,7 +11,7 @@ const gunzipAsync = promisify(gunzip);
 interface PaprikaRecipe {
   uid: string;
   name: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class UnpackAction extends CommandLineAction {
