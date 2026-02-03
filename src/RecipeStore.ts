@@ -1,9 +1,9 @@
 import { Recipe } from "./types.js";
-import * as fs from "fs";
-import * as path from "path";
+import { randomUUID } from "crypto";
 import { createRxDatabase, RxDatabase, RxCollection } from 'rxdb';
 import { getRxStorageMemory } from 'rxdb/plugins/storage-memory';
 import { wrappedValidateAjvStorage } from 'rxdb/plugins/validate-ajv';
+import { RecipeLoader } from "./loaders/RecipeLoader.js";
 
 // RxDB schema for Recipe collection
 const recipeSchema = {
@@ -59,13 +59,15 @@ type RecipeDatabase = RxDatabase<{
 }>;
 
 export class RecipeStore {
-  private recipesDir: string;
+  private loader: RecipeLoader;
   private db: RecipeDatabase | null = null;
   private collection: RecipeCollection | null = null;
   private initialized = false;
+  private dbName: string;
 
-  constructor(recipesDir: string) {
-    this.recipesDir = recipesDir;
+  constructor(loader: RecipeLoader) {
+    this.loader = loader;
+    this.dbName = `recipesdb-${randomUUID()}`;
   }
 
   private async initializeDatabase(): Promise<void> {
@@ -74,7 +76,7 @@ export class RecipeStore {
     }
 
     this.db = await createRxDatabase<RecipeDatabase>({
-      name: 'recipesdb',
+      name: this.dbName,
       storage: wrappedValidateAjvStorage({
         storage: getRxStorageMemory()
       }),
@@ -95,67 +97,61 @@ export class RecipeStore {
       // Initialize database on first load
       await this.initializeDatabase();
 
-      if (!fs.existsSync(this.recipesDir)) {
-        console.error(`Recipes directory not found: ${this.recipesDir}`);
-        return;
-      }
+      // Load recipes from the configured loader
+      const recipes = await this.loader.load();
 
-      const files = fs.readdirSync(this.recipesDir);
-      const jsonFiles = files.filter(file => file.endsWith(".json"));
-
-      const recipes: Recipe[] = [];
-      for (const file of jsonFiles) {
-        try {
-          const filePath = path.join(this.recipesDir, file);
-          const fileContent = fs.readFileSync(filePath, "utf-8");
-          const recipe: Recipe = JSON.parse(fileContent);
-          recipes.push(recipe);
-        } catch (error) {
-          console.error(`Error loading recipe ${file}:`, error);
-        }
-      }
-
-      // Bulk insert recipes into RxDB
+      // Bulk insert recipes into RxDB, filtering out ones that already exist
       if (recipes.length > 0 && this.collection) {
-        try {
-          const results = await this.collection.bulkInsert(recipes);
-          if (results.error.length > 0) {
-            console.error(`Failed to insert ${results.error.length} recipes during bulk insert.`);
-            results.error.forEach(error => {
-              console.error(`  * UID ${error.documentId} - Status ${error.status}`);
-              if (error.status === 422) {
-                const validationErrors = (error as { validationErrors?: Array<{ instancePath?: string; message?: string }> }).validationErrors;
-                if (Array.isArray(validationErrors)) {
-                  validationErrors.forEach((ve) => {
-                    console.error(`     * ${ve.instancePath}: ${ve.message}`);
-                  });
+        // Check which recipes already exist
+        const existingUids = new Set<string>();
+        const allDocs = await this.collection.find().exec();
+        allDocs.forEach(doc => existingUids.add(doc.uid));
+
+        // Only insert recipes that don't already exist
+        const newRecipes = recipes.filter(recipe => !existingUids.has(recipe.uid));
+
+        if (newRecipes.length > 0) {
+          try {
+            const results = await this.collection.bulkInsert(newRecipes);
+            if (results.error.length > 0) {
+              console.error(`Failed to insert ${results.error.length} recipes during bulk insert.`);
+              results.error.forEach(error => {
+                console.error(`  * UID ${error.documentId} - Status ${error.status}`);
+                if (error.status === 422) {
+                  const validationErrors = (error as { validationErrors?: Array<{ instancePath?: string; message?: string }> }).validationErrors;
+                  if (Array.isArray(validationErrors)) {
+                    validationErrors.forEach((ve) => {
+                      console.error(`     * ${ve.instancePath}: ${ve.message}`);
+                    });
+                  }
                 }
-              }
-            });
-          }
-        } catch (error: unknown) {
-          // Handle bulk insert errors - log details about which recipes failed
-          console.error("Error during bulk insert:");
-          const bulkError = error as {
-            validationErrors?: unknown;
-            writeErrors?: Array<{ documentInDb?: { uid?: string }; message?: string }>
-          };
-          if (bulkError.validationErrors) {
-            console.error("Validation errors:", JSON.stringify(bulkError.validationErrors, null, 2));
-          }
-          if (bulkError.writeErrors) {
-            console.error(`Failed to insert ${bulkError.writeErrors.length} recipes`);
-            bulkError.writeErrors.forEach((writeError, index: number) => {
-              console.error(`  [${index}] UID: ${writeError.documentInDb?.uid || 'unknown'}, Error:`, writeError.message);
-            });
-          } else {
-            console.error(error);
+              });
+            }
+          } catch (error: unknown) {
+            // Handle bulk insert errors - log details about which recipes failed
+            console.error("Error during bulk insert:");
+            const bulkError = error as {
+              validationErrors?: unknown;
+              writeErrors?: Array<{ documentInDb?: { uid?: string }; message?: string }>
+            };
+            if (bulkError.validationErrors) {
+              console.error("Validation errors:", JSON.stringify(bulkError.validationErrors, null, 2));
+            }
+            if (bulkError.writeErrors) {
+              console.error(`Failed to insert ${bulkError.writeErrors.length} recipes`);
+              bulkError.writeErrors.forEach((writeError, index: number) => {
+                console.error(`  [${index}] UID: ${writeError.documentInDb?.uid || 'unknown'}, Error:`, writeError.message);
+              });
+            } else {
+              console.error(error);
+            }
           }
         }
       }
 
       const count = await this.collection?.count().exec();
-      console.error(`Loaded ${count ?? 0} recipes from ${this.recipesDir}`);
+      const loaderType = typeof this.loader;
+      console.error(`Loaded ${count ?? 0} recipes from ${loaderType}`);
     } catch (error) {
       console.error("Error loading recipes:", error);
     }
@@ -223,5 +219,14 @@ export class RecipeStore {
       return 0;
     }
     return await this.collection.count().exec();
+  }
+
+  async destroy(): Promise<void> {
+    if (this.db) {
+      await this.db.remove();
+      this.db = null;
+      this.collection = null;
+      this.initialized = false;
+    }
   }
 }
