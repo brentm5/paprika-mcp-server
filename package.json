@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.25.3",
-    "@rushstack/ts-command-line": "^5.1.5",
+    "@rushstack/ts-command-line": "^5.1.7",
     "ajv": "^8.17.1",
     "jiti": "^2.6.1",
     "rxdb": "^16.21.1",
