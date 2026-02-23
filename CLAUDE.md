@@ -111,3 +111,17 @@ Tools self-register by calling `tool.register(server, recipeStore)`. The base cl
 
 ### Search Implementation
 Search is not index-based - it loads all documents and filters client-side. This works for small-medium recipe collections but may need optimization for large datasets.
+
+## GitHub Actions Workflow Policy
+
+All `uses:` references in `.github/workflows/` **must** be pinned to a full commit SHA (not a mutable tag or branch). Include the tag name as a comment for human readability.
+
+Example:
+```yaml
+uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+```
+
+Current pinned versions (update comment + SHA when bumping):
+- `actions/checkout` → `34e114876b0b11c390a56381ad16ebd13914f8d5` # v4.3.1 (ci.yml, release.yml)
+- `jdx/mise-action` → `6d1e696aa24c1aa1bcc1adea0212707c71ab78a8` # v3.6.1 (ci.yml, release.yml)
+- `changesets/action` → `6a0a831ff30acef54f2c6aa1cbbc1096b066edaf` # v1.7.0 (release.yml)
