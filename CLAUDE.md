@@ -18,8 +18,11 @@ The project has two main functions:
 # Install dependencies
 pnpm install
 
-# Build the project (compiles TypeScript and makes dist/index.js executable)
+# Build the project (bundles into single dist/index.cjs file)
 pnpm build
+
+# Build minified production bundle (~56% smaller)
+pnpm build:prod
 
 # Run directly in development (without building)
 pnpm start

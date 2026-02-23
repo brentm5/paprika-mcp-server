@@ -1,0 +1,14 @@
+tests/
+*.mcpb
+.claude/
+.github/
+src/
+CLAUDE.md
+.recipes/
+.mcp.json
+test/
+export/
+node_modules/
+*.config.js
+*.config.ts
+*.config.cjs
