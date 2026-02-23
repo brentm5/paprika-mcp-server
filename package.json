@@ -14,7 +14,8 @@
     "fix": "eslint --fix",
     "build": "node esbuild.config.js && chmod +x dist/index.cjs",
     "build:prod": "MINIFY=true node esbuild.config.js && chmod +x dist/index.cjs",
-    "package": "",
+    "package": "mcpb pack . paprika-mcp-server.mcpb",
+    "version": "changeset version && node scripts/sync-manifest-version.js",
     "start": "tsx src/index.ts"
   },
   "files": [
@@ -26,6 +27,7 @@
   "packageManager": "pnpm@10.12.4",
   "devDependencies": {
     "@anthropic-ai/mcpb": "^2.1.2",
+    "@changesets/cli": "^2.27.12",
     "@eslint/js": "^9.39.2",
     "@swc/core": "^1.15.11",
     "@swc/jest": "^0.2.39",
