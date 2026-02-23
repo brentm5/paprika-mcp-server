@@ -38,13 +38,13 @@
     "jest": "^30.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
+    "typescript-eslint": "^8.55.0",
     "zod": "^4.3.6"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.3",
-    "@rushstack/ts-command-line": "^5.1.5",
-    "ajv": "^8.17.1",
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@rushstack/ts-command-line": "^5.2.0",
+    "ajv": "^8.18.0",
     "jiti": "^2.6.1",
     "rxdb": "^16.21.1",
     "unzipper": "^0.12.3",
