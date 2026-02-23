@@ -42,7 +42,7 @@
     "zod": "^4.3.6"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@rushstack/ts-command-line": "^5.1.5",
     "ajv": "^8.17.1",
     "jiti": "^2.6.1",
