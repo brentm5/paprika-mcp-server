@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { PaprikaMcpCommandLine } from './cli/PaprikaCommandLine.js';
 
 async function main() {

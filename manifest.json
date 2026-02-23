@@ -9,11 +9,11 @@
   },
   "server": {
     "type": "node",
-    "entry_point": "dist/index.js",
+    "entry_point": "dist/index.cjs",
     "mcp_config": {
       "command": "node",
       "args": [
-        "${__dirname}/dist/index.js",
+        "${__dirname}/dist/index.cjs",
         "mcp",
         "--recipes-dir",
         "${user_config.recipes_dir}"
@@ -33,10 +33,16 @@
   },
   "tools": [
     {
-      "name": "search-recipes"
+      "name": "search-recipes",
+      "description": "Search recipes by query string across name, description, ingredients, and notes fields"
     },
     {
-      "name": "list-recipes"
+      "name": "get-recipe",
+      "description": "Get full details of a single recipe by its unique ID (UID)"
+    },
+    {
+      "name": "list-recipes",
+      "description": "List all available recipes with a summary of key fields"
     }
   ],
   "compatibility": {
