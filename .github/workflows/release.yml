@@ -38,7 +38,7 @@ jobs:
         uses: changesets/action@6a0a831ff30acef54f2c6aa1cbbc1096b066edaf # v1.7.0
         with:
           # Run our version script so manifest.json stays in sync with package.json.
-          version: pnpm version
+          version: pnpm run version
           # We don't publish to npm; this command is a no-op placeholder.
           publish: echo "skip npm publish"
           createGithubReleases: true
