@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "paprika-mcp-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An MCP server to interact with Paprika Recipe Manager",
   "long_description": "An MCP server to interact with Paprika Recipe Manager",
   "author": {
