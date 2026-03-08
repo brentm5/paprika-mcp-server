@@ -1,5 +1,11 @@
 # paprika-mcp-server
 
+## 1.0.3
+
+### Patch Changes
+
+- a0648c8: Bump @types/node from 22.19.7 to 25.3.0
+
 ## 1.0.2
 
 ### Patch Changes
