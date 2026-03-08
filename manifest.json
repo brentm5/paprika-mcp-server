@@ -1,7 +1,7 @@
 {
   "manifest_version": "0.2",
   "name": "paprika-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An MCP server to interact with Paprika Recipe Manager",
   "long_description": "An MCP server to interact with Paprika Recipe Manager",
   "author": {
@@ -28,7 +28,9 @@
       "description": "The directory where exported Paprika Recipes are exported",
       "sensitive": false,
       "required": true,
-      "default": ["${HOME}/.paprika/recipes"]
+      "default": [
+        "${HOME}/.paprika/recipes"
+      ]
     }
   },
   "tools": [

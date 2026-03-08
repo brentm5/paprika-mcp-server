@@ -1,6 +1,6 @@
 {
   "name": "paprika-mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server that provides AI assistants access to Paprika Recipe Manager data",
   "bin": {
     "paprika-mcp-server": "./dist/index.cjs"
