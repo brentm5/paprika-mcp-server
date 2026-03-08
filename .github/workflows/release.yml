@@ -39,8 +39,8 @@ jobs:
         with:
           # Run our version script so manifest.json stays in sync with package.json.
           version: pnpm run version
-          # We don't publish to npm; this command is a no-op placeholder.
-          publish: echo "skip npm publish"
+          # We don't publish to npm; use changeset tag to create git tags.
+          publish: pnpm changeset tag
           createGithubReleases: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
