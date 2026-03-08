@@ -1,4 +1,7 @@
 name: Add changeset to Dependabot updates
+permissions:
+  contents: write
+  pull-requests: write
 
 on:
   pull_request_target:
