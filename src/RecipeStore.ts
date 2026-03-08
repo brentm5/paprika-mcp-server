@@ -202,6 +202,9 @@ export class RecipeStore {
         if (typeof fieldValue === 'string') {
           return fieldValue.toLowerCase().includes(queryLower);
         }
+        if (Array.isArray(fieldValue)) {
+          return fieldValue.some(item => typeof item === 'string' && item.toLowerCase().includes(queryLower));
+        }
         return false;
       });
     });

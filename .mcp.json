@@ -4,10 +4,10 @@
       "type": "stdio",
       "command": "node",
       "args": [
-        "./dist/index.js",
+        "./dist/index.cjs",
         "mcp",
         "--recipes-dir",
-        ".recipes"
+        "tests/fixtures/recipes"
       ],
       "env": {}
     }

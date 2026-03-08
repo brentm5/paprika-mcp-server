@@ -5,7 +5,7 @@
   "source": "source.com",
   "total_time": "10m",
   "notes": "Notes",
-  "categories": [],
+  "categories": ["chicken", "crockpot"],
   "image_url": null,
   "uid": "03D38552-8562-46F9-BA8E-97D5D27ACE0C",
   "photo_hash": null,

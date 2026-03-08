@@ -15,7 +15,7 @@ export class ListRecipesTool extends BaseMcpTool<typeof inputSchema> {
   get config(): ToolConfig {
     return {
       title: "Get List of Paprika Recipes",
-      description: "Get a list of all recipes from Paprika Recipe Manager",
+      description: "Get a list of all recipes from Paprika Recipe Manager, returning a summary of each recipe including name, description, categories, total time, and difficulty.",
       inputSchema
     };
   }

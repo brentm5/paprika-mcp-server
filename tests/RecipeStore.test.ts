@@ -12,7 +12,8 @@ const mockRecipes: Recipe[] = [
     description: 'Description',
     ingredients: 'Ingredient 1\nIngredient 2',
     notes: 'Notes',
-    source: 'source.com'
+    source: 'source.com',
+    categories: ['chicken', 'crockpot'],
   },
   {
     uid: '56B5F1BC-B382-444C-85A9-F2AFDD0A875E',
@@ -20,7 +21,8 @@ const mockRecipes: Recipe[] = [
     description: 'Description',
     ingredients: 'Ingredient 1\nIngredient 2',
     notes: 'Notes',
-    source: 'source.com'
+    source: 'source.com',
+    categories: ['chicken', '1-pot'],
   }
 ];
 const defaultLoader = new MockRecipeLoader(mockRecipes);
@@ -136,6 +138,23 @@ describe('RecipeStore', () => {
       // Search for "source" in name field only - should not match
       const results = await store.search('source', ['name']);
       expect(results).toEqual([]);
+    });
+
+    it('should search in categories field', async () => {
+      const results = await store.search('crockpot', ['categories']);
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Recipe 1');
+    });
+
+    it('should search categories case-insensitively', async () => {
+      const results = await store.search('CROCKPOT', ['categories']);
+      expect(results).toHaveLength(1);
+      expect(results[0].name).toBe('Recipe 1');
+    });
+
+    it('should return all recipes matching a shared category', async () => {
+      const results = await store.search('chicken', ['categories']);
+      expect(results).toHaveLength(2);
     });
   });
 

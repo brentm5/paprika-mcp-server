@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm test:*)",
+      "mcp__paprika__search-recipes",
+      "mcp__paprika__list-categories",
+      "mcp__paprika__list-recipes",
+      "mcp__paprika__get-recipe"
+    ]
+  }
+}
