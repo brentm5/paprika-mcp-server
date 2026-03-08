@@ -1,0 +1,2 @@
+# paprika-mcp-server
+
