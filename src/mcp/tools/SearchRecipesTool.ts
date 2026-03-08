@@ -5,9 +5,9 @@ import { RecipesListResponse } from "../../types.js";
 
 const inputSchema = z.object({
   searchQuery: z.string().describe("Search term to use for recipes"),
-  fields: z.array(z.enum(['name', 'description', 'ingredients', 'notes']))
+  fields: z.array(z.enum(['name', 'description', 'ingredients', 'notes', 'categories'])).optional()
     .optional()
-    .describe("Fields to search in. Defaults to all searchable fields (name, description, ingredients, notes)"),
+    .describe("Fields to search in. Defaults to all searchable fields (name, description, ingredients, notes, categories)"),
   limit: z.number().describe("Maximum number of results to return").default(10),
 });
 
@@ -19,7 +19,7 @@ export class SearchRecipesTool extends BaseMcpTool<typeof inputSchema> {
   get config(): ToolConfig {
     return {
       title: "Search for Paprika Recipes",
-      description: "Search for recipes from Paprika Recipe Manager by name, ingredients, description, or notes",
+      description: "Search for recipes from Paprika Recipe Manager by a query string. Searches across name, description, ingredients, notes, and categories by default, or a specified subset of those fields.",
       inputSchema,
     };
   }

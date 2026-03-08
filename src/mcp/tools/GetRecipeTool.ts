@@ -15,7 +15,7 @@ export class GetRecipeTool extends BaseMcpTool<typeof inputSchema> {
   get config(): ToolConfig {
     return {
       title: "Get Paprika Recipe",
-      description: "Get a list of all recipes from Paprika Recipe Manager",
+      description: "Get full details for a single recipe by its UID, including ingredients, directions, notes, and nutritional info.",
       inputSchema,
     };
   }

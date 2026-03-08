@@ -13,7 +13,6 @@
     "lint": "eslint",
     "fix": "eslint --fix",
     "build": "node esbuild.config.js && chmod +x dist/index.cjs",
-    "build:prod": "MINIFY=true node esbuild.config.js && chmod +x dist/index.cjs",
     "package": "mcpb pack . paprika-mcp-server.mcpb",
     "version": "changeset version && node scripts/sync-manifest-version.js",
     "start": "tsx src/index.ts"
