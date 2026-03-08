@@ -1,5 +1,16 @@
 # paprika-mcp-server
 
+## 1.0.2
+
+### Patch Changes
+
+- b4954d3: Bump @modelcontextprotocol/sdk from 1.26.0 to 1.27.1
+- b4954d3: Bump @rushstack/ts-command-line from 5.2.0 to 5.3.3
+- b4954d3: Bump @swc/core from 1.15.11 to 1.15.18
+- b4954d3: Bump globals from 17.3.0 to 17.4.0
+- 557904a: Update to allow publishing of releases and artifacts
+- b4954d3: Bump typescript-eslint from 8.55.0 to 8.56.1
+
 ## 1.0.1
 
 ### Patch Changes
