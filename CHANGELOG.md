@@ -1,5 +1,13 @@
 # paprika-mcp-server
 
+## 1.0.3
+
+### Patch Changes
+
+- c220ad4: Bump @eslint/js from 9.39.2 to 9.39.3
+- a0648c8: Bump @types/node from 22.19.7 to 25.3.0
+- 4407b74: Bump actions/checkout from 4.3.1 to 6.0.2 in /.github/workflows
+
 ## 1.0.2
 
 ### Patch Changes
