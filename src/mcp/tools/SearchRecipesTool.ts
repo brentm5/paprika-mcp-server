@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseMcpTool, ToolConfig, ToolResult } from "../BaseMcpTool.js";
-import { RecipeStore } from "../../RecipeStore.js";
+import { LancedbFTSStore } from "../../stores/LancedbFTSStore.js";
 import { RecipesListResponse } from "../../types.js";
 
 const inputSchema = z.object({
@@ -24,7 +24,7 @@ export class SearchRecipesTool extends BaseMcpTool<typeof inputSchema> {
     };
   }
 
-  async execute(params: z.infer<typeof inputSchema>, recipeStore: RecipeStore): Promise<ToolResult> {
+  async execute(params: z.infer<typeof inputSchema>, recipeStore: LancedbFTSStore): Promise<ToolResult> {
     const { searchQuery, fields, limit } = params;
 
     const matchedRecipes = await recipeStore.search(searchQuery, fields);

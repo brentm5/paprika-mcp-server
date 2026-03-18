@@ -1,7 +1,7 @@
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { RecipeStore } from "../../RecipeStore.js";
+import { LancedbFTSStore } from "../../stores/LancedbFTSStore.js";
 import { BaseMcpTool } from "../../mcp/BaseMcpTool.js";
 import { SearchRecipesTool } from "../../mcp/tools/SearchRecipesTool.js";
 import { ListRecipesTool } from "../../mcp/tools/ListRecipesTool.js";
@@ -22,6 +22,7 @@ export type ShortRecipe = {
 
 export class McpAction extends CommandLineAction {
   private _recipesDir!: CommandLineStringParameter;
+  private _dbDir!: CommandLineStringParameter;
   private _serverName!: CommandLineStringParameter;
   private _verbose!: CommandLineFlagParameter;
 
@@ -38,6 +39,13 @@ export class McpAction extends CommandLineAction {
       argumentName: 'PATH',
       description: 'Path to directory containing Paprika recipe JSON files',
       environmentVariable: 'PAPRIKA_RECIPES_DIR'
+    });
+
+    this._dbDir = this.defineStringParameter({
+      parameterLongName: '--db-dir',
+      argumentName: 'PATH',
+      description: 'Path to directory where the LanceDB recipe database is stored',
+      environmentVariable: 'PAPRIKA_DB_DIR'
     });
 
     this._serverName = this.defineStringParameter({
@@ -74,7 +82,8 @@ export class McpAction extends CommandLineAction {
 
     // Create recipe loader and store, then load recipes
     const recipeLoader = new FileSystemRecipeLoader(recipesDir);
-    const recipeStore = new RecipeStore(recipeLoader);
+    const dbPath = this._dbDir.value ?? path.join(__dirname, '..', 'db');
+    const recipeStore = new LancedbFTSStore(recipeLoader, dbPath);
     await recipeStore.load();
 
     // Create and configure MCP server
@@ -143,7 +152,7 @@ export class McpAction extends CommandLineAction {
     );
   }
 
-  private _registerTools(server: McpServer, recipeStore: RecipeStore): void {
+  private _registerTools(server: McpServer, recipeStore: LancedbFTSStore): void {
     const tools = this._getTools();
 
     for (const tool of tools) {
