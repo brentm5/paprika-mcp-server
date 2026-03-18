@@ -82,7 +82,7 @@ export class McpAction extends CommandLineAction {
 
     // Create recipe loader and store, then load recipes
     const recipeLoader = new FileSystemRecipeLoader(recipesDir);
-    const dbPath = this._dbDir.value ?? path.join(__dirname, '..', 'db');
+    const dbPath = this._dbDir.value ?? path.join(path.dirname(process.argv[1]), '..', 'db');
     const recipeStore = new LancedbFTSStore(recipeLoader, dbPath);
     await recipeStore.load();
 
