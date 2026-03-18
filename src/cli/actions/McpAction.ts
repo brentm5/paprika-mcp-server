@@ -10,6 +10,7 @@ import * as path from "path";
 import * as fs from "fs";
 import { GetRecipeTool } from '../../mcp/tools/GetRecipeTool.js';
 import { ListCategoriesTool } from '../../mcp/tools/ListCategoriesTool.js';
+import { RefreshRecipesTool } from '../../mcp/tools/RefreshRecipesTool.js';
 export type ShortRecipe = {
   uid: string;
   name: string;
@@ -114,6 +115,7 @@ export class McpAction extends CommandLineAction {
       new ListRecipesTool(),
       new GetRecipeTool(),
       new ListCategoriesTool(),
+      new RefreshRecipesTool(),
     ];
   }
 
