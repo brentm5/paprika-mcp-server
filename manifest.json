@@ -16,7 +16,9 @@
         "${__dirname}/dist/index.cjs",
         "mcp",
         "--recipes-dir",
-        "${user_config.recipes_dir}"
+        "${user_config.recipes_dir}",
+        "--db-dir",
+        "${user_config.db_dir}"
       ],
       "env": {}
     }
@@ -31,6 +33,14 @@
       "default": [
         "${HOME}/.paprika/recipes"
       ]
+    },
+    "db_dir": {
+      "type": "directory",
+      "title": "Database Directory",
+      "description": "The directory where the LanceDB recipe database is stored",
+      "sensitive": false,
+      "required": false,
+      "default": "${__dirname}/db"
     }
   },
   "tools": [
@@ -49,6 +59,10 @@
     {
       "name": "list-categories",
       "description": "Get a list of all recipe categories and the number of recipes in each category."
+    },
+    {
+      "name": "refresh-recipes",
+      "description": "Reload recipes from the Paprika recipes directory into the database. Use this after adding or updating recipes in Paprika."
     }
   ],
   "compatibility": {

@@ -5,3 +5,4 @@ dist/
 coverage
 *.mcpb
 export/
+db/

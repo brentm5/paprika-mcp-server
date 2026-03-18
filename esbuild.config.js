@@ -22,6 +22,8 @@ await esbuild.build({
     ...builtinModules.map(m => `node:${m}`),
     // Optional dependencies from unzipper that we don't need
     '@aws-sdk/client-s3',
+    // LanceDB has native bindings that cannot be bundled
+    '@lancedb/lancedb',
   ],
   banner: {
     js: '#!/usr/bin/env node\n',

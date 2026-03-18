@@ -43,11 +43,10 @@
     "zod": "^4.3.6"
   },
   "dependencies": {
+    "@lancedb/lancedb": "^0.27.0",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "@rushstack/ts-command-line": "^5.3.3",
-    "ajv": "^8.18.0",
     "jiti": "^2.6.1",
-    "rxdb": "^16.21.1",
     "unzipper": "^0.12.3",
     "zod-to-json-schema": "^3.25.1"
   }
