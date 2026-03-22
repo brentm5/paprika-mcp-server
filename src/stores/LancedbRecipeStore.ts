@@ -85,16 +85,22 @@ const TABLE_FIELDS: FieldLike[] = [
 export class LancedbRecipeStore implements IRecipeStore {
   private readonly _loader: RecipeLoader;
   private readonly _dbPath: string;
-  private _table: Table | null = null;
+  private _tablePromise: Promise<Table> | null = null;
+  private _loadPromise: Promise<void> | null = null;
 
   constructor(loader: RecipeLoader, dbPath?: string) {
     this._loader = loader;
     this._dbPath = dbPath ?? path.join(os.tmpdir(), `paprika-mcp-${randomUUID()}`);
   }
 
-  private async _getTable(): Promise<Table> {
-    if (this._table) return this._table;
+  private _getTable(): Promise<Table> {
+    if (!this._tablePromise) {
+      this._tablePromise = this._openTable();
+    }
+    return this._tablePromise;
+  }
 
+  private async _openTable(): Promise<Table> {
     console.error(`[paprika] Connecting to LanceDB at: ${this._dbPath}`);
     const conn = await lancedb.connect(this._dbPath);
     const tableNames = await conn.tableNames();
@@ -102,20 +108,25 @@ export class LancedbRecipeStore implements IRecipeStore {
 
     if (tableNames.includes(TABLE_NAME)) {
       console.error(`[paprika] Opening existing table '${TABLE_NAME}'`);
-      this._table = await conn.openTable(TABLE_NAME);
+      return conn.openTable(TABLE_NAME);
     } else {
       console.error(`[paprika] Creating new table '${TABLE_NAME}'`);
-      this._table = await conn.createEmptyTable(TABLE_NAME, {
+      return conn.createEmptyTable(TABLE_NAME, {
         fields: TABLE_FIELDS,
         metadata: new Map(),
         get names() { return TABLE_FIELDS.map(f => (f as { name: string }).name); },
       });
     }
-
-    return this._table;
   }
 
-  async load(): Promise<void> {
+  load(): Promise<void> {
+    if (!this._loadPromise) {
+      this._loadPromise = this._doLoad();
+    }
+    return this._loadPromise;
+  }
+
+  private async _doLoad(): Promise<void> {
     try {
       console.error(`[paprika] Loading recipes from loader...`);
       const recipes = await this._loader.load();
@@ -196,6 +207,7 @@ export class LancedbRecipeStore implements IRecipeStore {
   }
 
   destroy(): void {
-    this._table = null;
+    this._tablePromise = null;
+    this._loadPromise = null;
   }
 }
