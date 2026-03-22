@@ -9,8 +9,10 @@ CLAUDE.md
 test/
 export/
 node_modules/
+!dist/node_modules/
 *.config.js
 *.config.ts
 *.config.cjs
 scripts/
 .changeset/
+db/

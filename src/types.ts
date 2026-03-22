@@ -1,35 +1,16 @@
-export type Photo = {
-  data: string;
-}
+export { Recipe, type Photo, type RecipeData } from './models/recipe.js';
+import type { Recipe } from './models/recipe.js';
 
-export type Recipe = {
+export type ShortRecipe = {
   uid: string;
   name: string;
-  ingredients?: string;
-  directions?: string;
   description?: string;
-  notes?: string;
-  nutritional_info?: string;
-  prep_time?: string;
-  cook_time?: string;
-  total_time?: string;
-  servings?: string;
-  difficulty?: string;
-  rating?: number;
   categories?: string[];
-  source?: string;
-  source_url?: string;
-  image_url?: string;
-  photo?: string;
-  created?: string;
-  hash?: string;
-  photo_hash?: string;
-  photo_large?: string | null;
-  photo_data?: string;
-  photos?: Photo[];
-}
+  total_time?: string;
+  difficulty?: string;
+};
 
 export type RecipesListResponse = {
-  recipes: Recipe[];
+  recipes: Partial<Recipe>[];
   count: number;
 };

@@ -1,5 +1,5 @@
 import { FileSystemRecipeLoader } from '../src/loaders/FileSystemRecipeLoader';
-import { Recipe } from '../src/types';
+import { Recipe } from '../src/models/recipe.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

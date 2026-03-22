@@ -13,6 +13,6 @@ export class MockRecipeLoader implements RecipeLoader {
   }
 
   async load(): Promise<Recipe[]> {
-    return this.recipes;
+    return this.recipes.map(r => Recipe.from(r));
   }
 }

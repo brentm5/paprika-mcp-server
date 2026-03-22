@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { BaseMcpTool, ToolConfig, ToolResult } from "../BaseMcpTool.js";
-import { RecipeStore } from "../../RecipeStore.js";
-import { RecipesListResponse } from "../../types.js";
+import type { IRecipeStore } from "../../stores/IRecipeStore.js";
+import type { RecipesListResponse } from "../../types.js";
+import { toShortRecipe } from "./shared.js";
 
 const inputSchema = z.object({
   limit: z.number().describe("Number of recipes to return").default(200),
@@ -20,18 +21,11 @@ export class ListRecipesTool extends BaseMcpTool<typeof inputSchema> {
     };
   }
 
-  async execute(params: z.infer<typeof inputSchema>, recipeStore: RecipeStore): Promise<ToolResult> {
+  async execute(params: z.infer<typeof inputSchema>, recipeStore: IRecipeStore): Promise<ToolResult> {
     const { limit } = params;
 
     const results = await recipeStore.list();
-    const recipes = results.map(r => ({
-      uid: r.uid,
-      name: r.name,
-      description: r.description,
-      categories: r.categories,
-      total_time: r.total_time,
-      difficulty: r.difficulty,
-    })).slice(0, limit);
+    const recipes = results.map(toShortRecipe).slice(0, limit);
 
     const structuredContent: RecipesListResponse = {
       recipes,

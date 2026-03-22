@@ -1,7 +1,8 @@
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { RecipeStore } from "../../RecipeStore.js";
+import { LancedbRecipeStore } from "../../stores/LancedbRecipeStore.js";
+import type { IRecipeStore } from "../../stores/IRecipeStore.js";
 import { BaseMcpTool } from "../../mcp/BaseMcpTool.js";
 import { SearchRecipesTool } from "../../mcp/tools/SearchRecipesTool.js";
 import { ListRecipesTool } from "../../mcp/tools/ListRecipesTool.js";
@@ -10,21 +11,12 @@ import * as path from "path";
 import * as fs from "fs";
 import { GetRecipeTool } from '../../mcp/tools/GetRecipeTool.js';
 import { ListCategoriesTool } from '../../mcp/tools/ListCategoriesTool.js';
-export type ShortRecipe = {
-  uid: string;
-  name: string;
-  description?: string;
-  categories?: string[];
-  total_time?: string;
-  difficulty?: string;
-}
-
+import { RefreshRecipesTool } from '../../mcp/tools/RefreshRecipesTool.js';
 
 export class McpAction extends CommandLineAction {
   private _recipesDir!: CommandLineStringParameter;
+  private _dbDir!: CommandLineStringParameter;
   private _serverName!: CommandLineStringParameter;
-  private _verbose!: CommandLineFlagParameter;
-
   public constructor() {
     super({
       actionName: 'mcp',
@@ -40,6 +32,13 @@ export class McpAction extends CommandLineAction {
       environmentVariable: 'PAPRIKA_RECIPES_DIR'
     });
 
+    this._dbDir = this.defineStringParameter({
+      parameterLongName: '--db-dir',
+      argumentName: 'PATH',
+      description: 'Path to directory where the LanceDB recipe database is stored',
+      environmentVariable: 'PAPRIKA_DB_DIR'
+    });
+
     this._serverName = this.defineStringParameter({
       parameterLongName: '--server-name',
       argumentName: 'NAME',
@@ -48,54 +47,52 @@ export class McpAction extends CommandLineAction {
       environmentVariable: 'PAPRIKA_SERVER_NAME'
     });
 
-    this._verbose = this.defineFlagParameter({
-      parameterLongName: '--verbose',
-      parameterShortName: '-v',
-      description: 'Enable verbose logging output'
-    });
   }
 
   protected async onExecuteAsync(): Promise<void> {
-    // Determine recipes directory
-    const recipesDir = this._recipesDir.value || this._getDefaultRecipesDir();
+    console.error(`[paprika] onExecuteAsync started`);
 
-    // Validate recipes directory exists
+    const recipesDir = this._recipesDir.value || this._getDefaultRecipesDir();
+    console.error(`[paprika] recipes dir: ${recipesDir}`);
+
     if (!fs.existsSync(recipesDir)) {
       console.error(`Error: Recipes directory not found: ${recipesDir}`);
       console.error('Please specify a valid directory with --recipes-dir');
       process.exit(1);
     }
 
-    if (this._verbose.value) {
-      console.error(`Starting Paprika MCP Server...`);
-      console.error(`  Recipes directory: ${recipesDir}`);
-      console.error(`  Server name: ${this._serverName.value}`);
-    }
+    console.error(`[paprika] Starting Paprika MCP Server...`);
+    console.error(`[paprika]   Recipes directory: ${recipesDir}`);
+    console.error(`[paprika]   Server name: ${this._serverName.value}`);
 
-    // Create recipe loader and store, then load recipes
     const recipeLoader = new FileSystemRecipeLoader(recipesDir);
-    const recipeStore = new RecipeStore(recipeLoader);
+    const dbPath = this._dbDir.value ?? path.join(path.dirname(process.argv[1]), '..', 'db');
+    console.error(`[paprika]   DB path: ${dbPath}`);
+    console.error(`[paprika] Creating LancedbRecipeStore...`);
+    const recipeStore = new LancedbRecipeStore(recipeLoader, dbPath);
+    console.error(`[paprika] Loading recipes...`);
     await recipeStore.load();
+    console.error(`[paprika] Recipes loaded`);
 
-    // Create and configure MCP server
+    console.error(`[paprika] Creating MCP server...`);
     const server = new McpServer({
       name: this._serverName.value!,
-      version: "1.0.0"
+      version: __APP_VERSION__
     });
 
-    // Register tools and prompts
+    console.error(`[paprika] Registering tools...`);
     this._registerTools(server, recipeStore);
+    console.error(`[paprika] Registering prompts...`);
     this._registerPrompts(server);
 
-    // Start server with stdio transport
+    console.error(`[paprika] Connecting stdio transport...`);
     const transport = new StdioServerTransport();
     await server.connect(transport);
 
-    console.error("Paprika MCP Server running on stdio");
+    console.error("[paprika] MCP Server running on stdio");
   }
 
   private _getDefaultRecipesDir(): string {
-    // Get the .recipes directory relative to current working directory
     return path.join(process.cwd(), '.recipes');
   }
 
@@ -105,6 +102,7 @@ export class McpAction extends CommandLineAction {
       new ListRecipesTool(),
       new GetRecipeTool(),
       new ListCategoriesTool(),
+      new RefreshRecipesTool(),
     ];
   }
 
@@ -143,7 +141,7 @@ export class McpAction extends CommandLineAction {
     );
   }
 
-  private _registerTools(server: McpServer, recipeStore: RecipeStore): void {
+  private _registerTools(server: McpServer, recipeStore: IRecipeStore): void {
     const tools = this._getTools();
 
     for (const tool of tools) {

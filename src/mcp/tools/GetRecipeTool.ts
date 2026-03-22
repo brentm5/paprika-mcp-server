@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { BaseMcpTool, ToolConfig, ToolResult } from "../BaseMcpTool.js";
-import { RecipeStore } from "../../RecipeStore.js";
-import { RecipesListResponse } from "../../types.js";
+import type { IRecipeStore } from "../../stores/IRecipeStore.js";
+import type { RecipesListResponse } from "../../types.js";
 
 const inputSchema = z.object({
   uid: z.string().describe("UID for the Recipe to get"),
@@ -20,7 +20,7 @@ export class GetRecipeTool extends BaseMcpTool<typeof inputSchema> {
     };
   }
 
-  async execute(params: z.infer<typeof inputSchema>, recipeStore: RecipeStore): Promise<ToolResult> {
+  async execute(params: z.infer<typeof inputSchema>, recipeStore: IRecipeStore): Promise<ToolResult> {
     const { uid } = params;
 
     const recipe = await recipeStore.getByUid(uid);

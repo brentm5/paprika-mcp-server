@@ -27,7 +27,7 @@ export class FileSystemRecipeLoader implements RecipeLoader {
       try {
         const filePath = path.join(this.recipesDir, file);
         const fileContent = fs.readFileSync(filePath, "utf-8");
-        const recipe: Recipe = JSON.parse(fileContent);
+        const recipe = Recipe.from(JSON.parse(fileContent));
         recipes.push(recipe);
       } catch (error) {
         console.error(`Error loading recipe ${file}:`, error);

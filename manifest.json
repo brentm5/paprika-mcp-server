@@ -16,7 +16,9 @@
         "${__dirname}/dist/index.cjs",
         "mcp",
         "--recipes-dir",
-        "${user_config.recipes_dir}"
+        "${user_config.recipes_dir}",
+        "--db-dir",
+        "${__dirname}/db"
       ],
       "env": {}
     }
@@ -49,6 +51,10 @@
     {
       "name": "list-categories",
       "description": "Get a list of all recipe categories and the number of recipes in each category."
+    },
+    {
+      "name": "refresh-recipes",
+      "description": "Reload recipes from the Paprika recipes directory into the database. Use this after adding or updating recipes in Paprika."
     }
   ],
   "compatibility": {

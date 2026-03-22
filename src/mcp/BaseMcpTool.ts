@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { RecipeStore } from "../RecipeStore.js";
+import type { IRecipeStore } from "../stores/IRecipeStore.js";
 
 export interface ToolConfig {
   title: string;
@@ -22,9 +22,9 @@ export abstract class BaseMcpTool<TSchema extends z.ZodObject<z.ZodRawShape> = z
   abstract get name(): string;
   abstract get config(): ToolConfig;
 
-  abstract execute(params: z.infer<TSchema>, recipeStore: RecipeStore): Promise<ToolResult>;
+  abstract execute(params: z.infer<TSchema>, recipeStore: IRecipeStore): Promise<ToolResult>;
 
-  register(server: McpServer, recipeStore: RecipeStore): void {
+  register(server: McpServer, recipeStore: IRecipeStore): void {
     server.registerTool(
       this.name,
       this.config,
