@@ -1,5 +1,17 @@
 # paprika-mcp-server
 
+## 1.0.4
+
+### Patch Changes
+
+- 3fd6869: Bump @changesets/cli from 2.29.8 to 2.30.0
+- 3fd6869: Bump @types/node from 25.3.3 to 25.5.0
+- 3fd6869: Bump esbuild from 0.27.3 to 0.27.4
+- c30ef1c: Bump eslint from 9.39.4 to 10.0.3
+- a1ff58d: Bump jdx/mise-action from 3.6.1 to 4.0.0 in /.github/workflows
+- 3fd6869: Bump jest from 30.2.0 to 30.3.0
+- 3fd6869: Bump typescript-eslint from 8.56.1 to 8.57.0
+
 ## 1.0.3
 
 ### Patch Changes
