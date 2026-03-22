@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseMcpTool, ToolConfig, ToolResult } from "../BaseMcpTool.js";
-import { LancedbFTSStore } from "../../stores/LancedbFTSStore.js";
+import type { IRecipeStore } from "../../stores/IRecipeStore.js";
 
 const inputSchema = z.object({});
 
@@ -17,7 +17,7 @@ export class RefreshRecipesTool extends BaseMcpTool<typeof inputSchema> {
     };
   }
 
-  async execute(_params: z.infer<typeof inputSchema>, recipeStore: LancedbFTSStore): Promise<ToolResult> {
+  async execute(_params: z.infer<typeof inputSchema>, recipeStore: IRecipeStore): Promise<ToolResult> {
     const countBefore = await recipeStore.getCount();
     await recipeStore.load();
     const countAfter = await recipeStore.getCount();

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseMcpTool, ToolConfig, ToolResult } from "../BaseMcpTool.js";
-import { LancedbFTSStore } from "../../stores/LancedbFTSStore.js";
+import type { IRecipeStore } from "../../stores/IRecipeStore.js";
 
 const inputSchema = z.object({});
 
@@ -22,7 +22,7 @@ export class ListCategoriesTool extends BaseMcpTool<typeof inputSchema> {
     };
   }
 
-  async execute(_params: z.infer<typeof inputSchema>, recipeStore: LancedbFTSStore): Promise<ToolResult> {
+  async execute(_params: z.infer<typeof inputSchema>, recipeStore: IRecipeStore): Promise<ToolResult> {
     const recipes = await recipeStore.list();
 
     const categoryCounts = new Map<string, number>();
