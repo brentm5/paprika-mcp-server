@@ -24,15 +24,8 @@ const nativePkgName = `lancedb-${process.platform}-${process.arch}`;
 // Read pnpm store once — all package lookups use this list
 const pnpmDirs = fs.readdirSync(PNPM_STORE);
 const nativePnpmDir = pnpmDirs.find(d => d.startsWith(`@lancedb+${nativePkgName}@`));
-if (!nativePnpmDir) {
-  console.error(`Native lancedb package not found for ${process.platform}-${process.arch}`);
-  process.exit(1);
-}
 const lancedbPnpmDir = pnpmDirs.find(d => d.startsWith('@lancedb+lancedb@'));
 const arrowPnpmDir = pnpmDirs.find(d => d.startsWith('apache-arrow@'));
-
-const lancedbSrc = fs.realpathSync(path.join('node_modules', '@lancedb', 'lancedb'));
-const nativeSrc = path.join(PNPM_STORE, nativePnpmDir, 'node_modules', '@lancedb', nativePkgName);
 
 // Collect runtime deps of a pnpm-installed package by resolving its co-located
 // node_modules — pnpm places all transitive deps alongside the package in the
@@ -54,10 +47,21 @@ function collectDeps(pnpmDir) {
   return deps;
 }
 
-const runtimeDeps = [
-  ...collectDeps(lancedbPnpmDir),
-  ...collectDeps(arrowPnpmDir),
-].filter((dep, i, all) => all.findIndex(d => d.name === dep.name) === i); // dedupe
+// Native binary copy assets — only populated when the platform-specific binding
+// is present in node_modules. Skipped on CI where only one platform is installed.
+const nativeCopyAssets = nativePnpmDir ? (() => {
+  const lancedbSrc = fs.realpathSync(path.join('node_modules', '@lancedb', 'lancedb'));
+  const nativeSrc = path.join(PNPM_STORE, nativePnpmDir, 'node_modules', '@lancedb', nativePkgName);
+  const runtimeDeps = [
+    ...collectDeps(lancedbPnpmDir),
+    ...collectDeps(arrowPnpmDir),
+  ].filter((dep, i, all) => all.findIndex(d => d.name === dep.name) === i);
+  return [
+    { from: [`${lancedbSrc}/**/*`], to: ['dist/node_modules/@lancedb/lancedb'] },
+    { from: [`${nativeSrc}/**/*`], to: [`dist/node_modules/@lancedb/${nativePkgName}`] },
+    ...runtimeDeps.map(({ name, src }) => ({ from: [`${src}/**/*`], to: [`dist/node_modules/${name}`] })),
+  ];
+})() : [];
 
 await esbuild.build({
   entryPoints: ['src/index.ts'],
@@ -68,38 +72,15 @@ await esbuild.build({
   outfile: 'dist/index.cjs',
   sourcemap: true,
   external: [
-    // Mark all Node.js built-in modules as external (don't bundle them)
     ...builtinModules,
     ...builtinModules.map(m => `node:${m}`),
-    // Optional dependencies from unzipper that we don't need
     '@aws-sdk/client-s3',
-    // LanceDB has native bindings that cannot be bundled — copied via plugin below
     '@lancedb/lancedb',
     'apache-arrow',
   ],
-  plugins: [
-    copy({
-      resolveFrom: 'cwd',
-      assets: [
-        {
-          // @lancedb/lancedb JS package
-          from: [`${lancedbSrc}/**/*`],
-          to: ['dist/node_modules/@lancedb/lancedb'],
-        },
-        {
-          // Platform-specific native binding (e.g. lancedb-darwin-arm64)
-          from: [`${nativeSrc}/**/*`],
-          to: [`dist/node_modules/@lancedb/${nativePkgName}`],
-        },
-        // Runtime dependencies of @lancedb/lancedb and apache-arrow (peer dep)
-        ...runtimeDeps.map(({ name, src }) => ({
-          from: [`${src}/**/*`],
-          to: [`dist/node_modules/${name}`],
-        })),
-      ],
-      watch: false,
-    }),
-  ],
+  plugins: nativeCopyAssets.length ? [
+    copy({ resolveFrom: 'cwd', assets: nativeCopyAssets, watch: false }),
+  ] : [],
   banner: {
     js: '#!/usr/bin/env node\n',
   },
