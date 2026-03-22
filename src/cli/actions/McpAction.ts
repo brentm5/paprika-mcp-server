@@ -52,11 +52,9 @@ export class McpAction extends CommandLineAction {
   protected async onExecuteAsync(): Promise<void> {
     console.error(`[paprika] onExecuteAsync started`);
 
-    // Determine recipes directory
     const recipesDir = this._recipesDir.value || this._getDefaultRecipesDir();
     console.error(`[paprika] recipes dir: ${recipesDir}`);
 
-    // Validate recipes directory exists
     if (!fs.existsSync(recipesDir)) {
       console.error(`Error: Recipes directory not found: ${recipesDir}`);
       console.error('Please specify a valid directory with --recipes-dir');
@@ -67,7 +65,6 @@ export class McpAction extends CommandLineAction {
     console.error(`[paprika]   Recipes directory: ${recipesDir}`);
     console.error(`[paprika]   Server name: ${this._serverName.value}`);
 
-    // Create recipe loader and store, then load recipes
     const recipeLoader = new FileSystemRecipeLoader(recipesDir);
     const dbPath = this._dbDir.value ?? path.join(path.dirname(process.argv[1]), '..', 'db');
     console.error(`[paprika]   DB path: ${dbPath}`);
@@ -77,20 +74,17 @@ export class McpAction extends CommandLineAction {
     await recipeStore.load();
     console.error(`[paprika] Recipes loaded`);
 
-    // Create and configure MCP server
     console.error(`[paprika] Creating MCP server...`);
     const server = new McpServer({
       name: this._serverName.value!,
-      version: "1.0.0"
+      version: __APP_VERSION__
     });
 
-    // Register tools and prompts
     console.error(`[paprika] Registering tools...`);
     this._registerTools(server, recipeStore);
     console.error(`[paprika] Registering prompts...`);
     this._registerPrompts(server);
 
-    // Start server with stdio transport
     console.error(`[paprika] Connecting stdio transport...`);
     const transport = new StdioServerTransport();
     await server.connect(transport);
@@ -99,7 +93,6 @@ export class McpAction extends CommandLineAction {
   }
 
   private _getDefaultRecipesDir(): string {
-    // Get the .recipes directory relative to current working directory
     return path.join(process.cwd(), '.recipes');
   }
 

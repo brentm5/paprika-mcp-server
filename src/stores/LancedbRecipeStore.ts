@@ -8,8 +8,7 @@ import { Recipe } from '../models/recipe.js';
 import type { RecipeLoader } from '../loaders/RecipeLoader.js';
 import type { IRecipeStore } from './IRecipeStore.js';
 
-// -- Row type --
-// LanceDB cannot store arrays or undefined; categories is encoded as \x00-delimited string.
+// LanceDB cannot store arrays or undefined; categories is encoded as a null-byte-delimited string.
 type SpecialField = 'uid' | 'name' | 'rating' | 'categories' | 'photos';
 type OptionalStringField = keyof {
   [K in keyof Recipe as NonNullable<Required<Recipe>[K]> extends string
@@ -35,7 +34,7 @@ function toRow(recipe: Recipe): RecipeRow {
     uid: recipe.uid,
     name: recipe.name,
     rating: recipe.rating ?? null,
-    categories: recipe.categories?.map(c => c.replaceAll('\x00', '')).join('\x00') ?? null,
+    categories: recipe.categories?.map(c => c.replaceAll(CATEGORY_DELIMITER, '')).join(CATEGORY_DELIMITER) ?? null,
   } as RecipeRow;
 
   for (const field of OPTIONAL_STRING_FIELDS) {
@@ -55,13 +54,14 @@ function fromRow(row: RecipeRow): Recipe {
 
   if (row.rating != null) recipe.rating = row.rating;
   if (row.categories) {
-    recipe.categories = row.categories.split('\x00').filter(Boolean);
+    recipe.categories = row.categories.split(CATEGORY_DELIMITER).filter(Boolean);
   }
 
   return recipe;
 }
 
-// -- FTS config --
+const CATEGORY_DELIMITER = '\x00';
+
 const TABLE_NAME = 'recipes';
 const FTS_COLUMNS = ['name', 'ingredients', 'description', 'notes', 'categories'] as const;
 type FtsColumn = typeof FTS_COLUMNS[number];
@@ -82,7 +82,6 @@ const TABLE_FIELDS: FieldLike[] = [
   { name: 'categories', type: 'utf8', nullable: true },
 ];
 
-// -- Store --
 export class LancedbRecipeStore implements IRecipeStore {
   private readonly _loader: RecipeLoader;
   private readonly _dbPath: string;
@@ -134,18 +133,19 @@ export class LancedbRecipeStore implements IRecipeStore {
       console.error(`[paprika] Upsert complete`);
 
       console.error(`[paprika] Creating FTS indexes...`);
-      for (const column of FTS_COLUMNS) {
+      await Promise.all(FTS_COLUMNS.map(column => {
         console.error(`[paprika]   Indexing column: ${column}`);
-        await table.createIndex(column, {
+        return table.createIndex(column, {
           config: lancedb.Index.fts({ withPosition: true }),
           replace: true,
         });
-      }
+      }));
       console.error(`[paprika] FTS indexes created`);
 
-      console.error(`[paprika] Loaded ${await this.getCount()} recipes`);
+      console.error(`[paprika] Loaded ${await table.countRows()} recipes`);
     } catch (error) {
       console.error('[paprika] Error loading recipes:', error);
+      throw error;
     }
   }
 
