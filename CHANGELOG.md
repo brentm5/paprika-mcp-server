@@ -1,5 +1,16 @@
 # paprika-mcp-server
 
+## 2.0.0
+
+### Major Changes
+
+- 3d42f40: Migrate to Lancedb to support better searching and potenially embeddings in the future
+
+### Minor Changes
+
+- aba9661: Add refresh recipes tool
+- aba9661: Swap rxdb for lancedb to enable FTS
+
 ## 1.0.4
 
 ### Patch Changes
