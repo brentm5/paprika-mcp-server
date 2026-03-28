@@ -1,18 +1,6 @@
 import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
-import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
-import { gunzip } from 'zlib';
-import { promisify } from 'util';
-import * as unzipper from 'unzipper';
 import * as fs from 'fs';
-
-const gunzipAsync = promisify(gunzip);
-
-interface PaprikaRecipe {
-  uid: string;
-  name: string;
-  [key: string]: unknown;
-}
+import { unpackPaprikaRecipes } from '../../unpack/unpackPaprikaRecipes.js';
 
 export class UnpackAction extends CommandLineAction {
   private _input!: CommandLineStringParameter;
@@ -53,7 +41,6 @@ export class UnpackAction extends CommandLineAction {
     const inputFile = this._input.value!;
     const outputDir = this._output.value!;
 
-    // Validate input file exists
     if (!fs.existsSync(inputFile)) {
       console.error(`Error: Input file not found: ${inputFile}`);
       process.exit(1);
@@ -64,53 +51,22 @@ export class UnpackAction extends CommandLineAction {
       console.log(`Output directory: ${outputDir}`);
     }
 
-    // Create output directory if it doesn't exist
-    await mkdir(outputDir, { recursive: true });
-
     try {
-      let processedCount = 0;
-      let errorCount = 0;
+      const result = await unpackPaprikaRecipes(inputFile, outputDir);
 
-      // Extract .paprikarecipes (zip file) and process each .paprikarecipe file
-      const directory = await unzipper.Open.file(inputFile);
-
-      for (const file of directory.files) {
-        if (file.type === 'File' && file.path.endsWith('.paprikarecipe')) {
-          try {
-            // Extract the .paprikarecipe file content
-            const compressedData = await file.buffer();
-
-            // Gunzip to get JSON
-            const decompressedData = await gunzipAsync(compressedData);
-            const recipe: PaprikaRecipe = JSON.parse(decompressedData.toString('utf-8'));
-
-            if (!recipe.uid) {
-              console.error(`⚠️  Skipping ${file.path}: No UID field found`);
-              errorCount++;
-              continue;
-            }
-
-            // Write to output directory as <UID>.json
-            const outputPath = join(outputDir, `${recipe.uid}.json`);
-            await writeFile(outputPath, JSON.stringify(recipe, null, 2), 'utf-8');
-
-            if (this._verbose.value) {
-              console.log(`✓ Converted: ${file.path}`);
-              console.log(`  → ${recipe.uid}.json (${recipe.name})`);
-            }
-
-            processedCount++;
-          } catch (error) {
-            console.error(`✗ Error processing ${file.path}:`, error);
-            errorCount++;
-          }
+      if (this._verbose.value) {
+        for (const recipe of result.recipes) {
+          console.log(`✓ Converted: ${recipe.uid}.json (${recipe.name})`);
+        }
+        for (const error of result.errors) {
+          console.error(`✗ ${error}`);
         }
       }
 
       console.log(`\n✓ Unpacking complete!`);
-      console.log(`  Processed: ${processedCount} recipes`);
-      if (errorCount > 0) {
-        console.log(`  Errors: ${errorCount}`);
+      console.log(`  Processed: ${result.recipes.length} recipes`);
+      if (result.errors.length > 0) {
+        console.log(`  Errors: ${result.errors.length}`);
       }
     } catch (error) {
       console.error('Error unpacking recipes:', error);

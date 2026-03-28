@@ -12,6 +12,7 @@ import * as fs from "fs";
 import { GetRecipeTool } from '../../mcp/tools/GetRecipeTool.js';
 import { ListCategoriesTool } from '../../mcp/tools/ListCategoriesTool.js';
 import { RefreshRecipesTool } from '../../mcp/tools/RefreshRecipesTool.js';
+import { UnpackRecipesTool } from '../../mcp/tools/UnpackRecipesTool.js';
 
 export class McpAction extends CommandLineAction {
   private _recipesDir!: CommandLineStringParameter;
@@ -81,7 +82,7 @@ export class McpAction extends CommandLineAction {
     });
 
     console.error(`[paprika] Registering tools...`);
-    this._registerTools(server, recipeStore);
+    this._registerTools(server, recipeStore, recipesDir);
     console.error(`[paprika] Registering prompts...`);
     this._registerPrompts(server);
 
@@ -96,13 +97,14 @@ export class McpAction extends CommandLineAction {
     return path.join(process.cwd(), '.recipes');
   }
 
-  private _getTools(): BaseMcpTool[] {
+  private _getTools(recipesDir: string): BaseMcpTool[] {
     return [
       new SearchRecipesTool(),
       new ListRecipesTool(),
       new GetRecipeTool(),
       new ListCategoriesTool(),
       new RefreshRecipesTool(),
+      new UnpackRecipesTool(recipesDir),
     ];
   }
 
@@ -141,8 +143,8 @@ export class McpAction extends CommandLineAction {
     );
   }
 
-  private _registerTools(server: McpServer, recipeStore: IRecipeStore): void {
-    const tools = this._getTools();
+  private _registerTools(server: McpServer, recipeStore: IRecipeStore, recipesDir: string): void {
+    const tools = this._getTools(recipesDir);
 
     for (const tool of tools) {
       tool.register(server, recipeStore);
