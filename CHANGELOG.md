@@ -1,5 +1,11 @@
 # paprika-mcp-server
 
+## 2.1.0
+
+### Minor Changes
+
+- 5755d8a: Add a new tool to unpack the paprika recipes files from within the MCP
+
 ## 2.0.0
 
 ### Major Changes
