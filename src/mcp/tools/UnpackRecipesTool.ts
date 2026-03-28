@@ -4,8 +4,8 @@ import type { IRecipeStore } from "../../stores/IRecipeStore.js";
 import { unpackPaprikaRecipes } from "../../unpack/unpackPaprikaRecipes.js";
 
 const inputSchema = z.object({
-  filePath: z.string().describe("Path to the .paprikarecipes archive file to unpack"),
-  outputDir: z.string().optional().describe("Directory to write unpacked JSON files to. Defaults to the server's recipes directory."),
+  filePath: z.string().describe("Local filesystem path on the machine running the MCP server to the .paprikarecipes archive file to unpack"),
+  outputDir: z.string().optional().describe("Local filesystem path on the machine running the MCP server to write unpacked JSON files to. Defaults to the server's recipes directory."),
 });
 
 export class UnpackRecipesTool extends BaseMcpTool<typeof inputSchema> {
@@ -23,7 +23,7 @@ export class UnpackRecipesTool extends BaseMcpTool<typeof inputSchema> {
   get config(): ToolConfig {
     return {
       title: "Unpack Recipes",
-      description: "Unpack a .paprikarecipes archive file into individual JSON recipe files and refresh the recipe store. The recipes will be immediately available for search and retrieval.",
+      description: "Unpack a .paprikarecipes archive file into individual JSON recipe files and refresh the recipe store. The recipes will be immediately available for search and retrieval. Both filePath and outputDir are local filesystem paths on the machine running the MCP server.",
       inputSchema,
     };
   }
