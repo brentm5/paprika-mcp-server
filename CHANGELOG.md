@@ -1,5 +1,15 @@
 # paprika-mcp-server
 
+## 2.1.1
+
+### Patch Changes
+
+- 9232e1c: Bump @eslint/js from 9.39.4 to 10.0.1
+- 4d795b5: Bump @lancedb/lancedb from 0.27.0 to 0.27.1
+- 4d795b5: Bump @swc/core from 1.15.18 to 1.15.21
+- 4d795b5: Bump eslint from 10.0.3 to 10.1.0
+- 4d795b5: Bump typescript-eslint from 8.57.0 to 8.57.1
+
 ## 2.1.0
 
 ### Minor Changes
