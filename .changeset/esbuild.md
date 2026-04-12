@@ -2,4 +2,4 @@
 "paprika-mcp-server": patch
 ---
 
-Bump eslint from 10.0.3 to 10.2.0
+Bump esbuild from 0.27.4 to 0.28.0
