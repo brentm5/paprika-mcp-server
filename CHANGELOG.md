@@ -1,5 +1,21 @@
 # paprika-mcp-server
 
+## 2.1.1
+
+### Patch Changes
+
+- 9232e1c: Bump @eslint/js from 9.39.4 to 10.0.1
+- 4d795b5: Bump @lancedb/lancedb from 0.27.0 to 0.27.2
+- ff7678e: Bump @modelcontextprotocol/sdk from 1.27.1 to 1.29.0
+- ff7678e: Bump @rushstack/ts-command-line from 5.3.3 to 5.3.4
+- 4d795b5: Bump @swc/core from 1.15.18 to 1.15.24
+- ff7678e: Bump @types/node from 25.5.0 to 25.5.2
+- ff7678e: Bump esbuild from 0.27.4 to 0.28.0
+- 4d795b5: Bump eslint from 10.0.3 to 10.2.0
+- 7b569b7: Bump jdx/mise-action from 4.0.0 to 4.0.1 in /.github/workflows
+- 4d795b5: Bump typescript-eslint from 8.57.0 to 8.58.0
+- ff7678e: Bump zod-to-json-schema from 3.25.1 to 3.25.2
+
 ## 2.1.0
 
 ### Minor Changes
