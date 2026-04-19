@@ -1,5 +1,12 @@
 # paprika-mcp-server
 
+## 2.1.2
+
+### Patch Changes
+
+- 78c0eac: Fixed an issue where duplicated recipes could be added
+- 78c0eac: Fixed issue where an existing DB would crash the mcp server
+
 ## 2.1.1
 
 ### Patch Changes
