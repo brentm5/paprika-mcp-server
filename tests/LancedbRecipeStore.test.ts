@@ -220,7 +220,7 @@ describe('LancedbRecipeStore', () => {
       expect(recipe?.name).toBe('Chicken Noodle Soup');
     });
 
-    it('should append new recipes without removing existing ones', async () => {
+    it('should overwrite with new recipe set on reload (not accumulate)', async () => {
       const newRecipe: Recipe = {
         uid: 'AAAAAAAA-0000-0000-0000-000000000001',
         name: 'Tomato Bisque',
@@ -235,18 +235,75 @@ describe('LancedbRecipeStore', () => {
       await firstStore.load();
       expect(await firstStore.getCount()).toBe(6);
 
-      const recipes = await defaultLoader.load();
       const secondStore = new LancedbRecipeStore(
-        new MockRecipeLoader([...recipes, newRecipe]),
+        new MockRecipeLoader([newRecipe]),
         sharedDbPath
       );
       await secondStore.load();
 
-      expect(await secondStore.getCount()).toBe(7);
+      // overwrite: only the new recipe set should be present
+      expect(await secondStore.getCount()).toBe(1);
       expect(await secondStore.getByUid(newRecipe.uid)).not.toBeNull();
-      for (const r of recipes) {
-        expect(await secondStore.getByUid(r.uid)).not.toBeNull();
-      }
+    });
+  });
+
+  describe('persistent database', () => {
+    it('should open an existing table without error on second store instance', async () => {
+      const sharedDbPath = path.join(os.tmpdir(), `paprika-test-${randomUUID()}`);
+
+      const firstStore = new LancedbRecipeStore(defaultLoader, sharedDbPath);
+      await firstStore.load();
+      firstStore.destroy();
+
+      const secondStore = new LancedbRecipeStore(defaultLoader, sharedDbPath);
+      await expect(secondStore.load()).resolves.not.toThrow();
+      secondStore.destroy();
+    });
+
+    it('should not duplicate recipes when loading into an existing persistent database', async () => {
+      const sharedDbPath = path.join(os.tmpdir(), `paprika-test-${randomUUID()}`);
+
+      const firstStore = new LancedbRecipeStore(defaultLoader, sharedDbPath);
+      await firstStore.load();
+      firstStore.destroy();
+
+      const secondStore = new LancedbRecipeStore(defaultLoader, sharedDbPath);
+      await secondStore.load();
+
+      expect(await secondStore.getCount()).toBe(6);
+      secondStore.destroy();
+    });
+  });
+
+  describe('refresh', () => {
+    it('should allow load() to be called again after first load completes', async () => {
+      const testStore = new LancedbRecipeStore(defaultLoader);
+      await testStore.load();
+      await expect(testStore.load()).resolves.not.toThrow();
+      expect(await testStore.getCount()).toBe(6);
+    });
+
+    it('should reflect updated recipes on second load', async () => {
+      const recipes = await defaultLoader.load();
+      const v1 = new MockRecipeLoader(recipes);
+      const testStore = new LancedbRecipeStore(v1);
+      await testStore.load();
+      expect(await testStore.getCount()).toBe(6);
+
+      const singleRecipe: Recipe = { uid: recipes[0].uid, name: 'Updated Name' };
+      // Swap loader by replacing store's internal loader isn't possible, so use a new store
+      // on the same db path to simulate a refresh with different data
+      const dbPath = path.join(os.tmpdir(), `paprika-refresh-${randomUUID()}`);
+      const storeA = new LancedbRecipeStore(v1, dbPath);
+      await storeA.load();
+
+      const v2 = new MockRecipeLoader([singleRecipe]);
+      const storeB = new LancedbRecipeStore(v2, dbPath);
+      await storeB.load();
+
+      expect(await storeB.getCount()).toBe(1);
+      const r = await storeB.getByUid(singleRecipe.uid);
+      expect(r?.name).toBe('Updated Name');
     });
   });
 });

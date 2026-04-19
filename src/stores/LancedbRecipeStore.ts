@@ -103,25 +103,19 @@ export class LancedbRecipeStore implements IRecipeStore {
   private async _openTable(): Promise<Table> {
     console.error(`[paprika] Connecting to LanceDB at: ${this._dbPath}`);
     const conn = await lancedb.connect(this._dbPath);
-    const tableNames = await conn.tableNames();
-    console.error(`[paprika] Existing tables: ${tableNames.join(', ') || '(none)'}`);
-
-    if (tableNames.includes(TABLE_NAME)) {
-      console.error(`[paprika] Opening existing table '${TABLE_NAME}'`);
-      return conn.openTable(TABLE_NAME);
-    } else {
-      console.error(`[paprika] Creating new table '${TABLE_NAME}'`);
-      return conn.createEmptyTable(TABLE_NAME, {
-        fields: TABLE_FIELDS,
-        metadata: new Map(),
-        get names() { return TABLE_FIELDS.map(f => (f as { name: string }).name); },
-      });
-    }
+    console.error(`[paprika] Opening/creating table '${TABLE_NAME}'`);
+    return conn.createEmptyTable(TABLE_NAME, {
+      fields: TABLE_FIELDS,
+      metadata: new Map(),
+      get names() { return TABLE_FIELDS.map(f => (f as { name: string }).name); },
+    }, { existOk: true });
   }
 
   load(): Promise<void> {
     if (!this._loadPromise) {
-      this._loadPromise = this._doLoad();
+      this._loadPromise = this._doLoad().finally(() => {
+        this._loadPromise = null;
+      });
     }
     return this._loadPromise;
   }
@@ -135,22 +129,18 @@ export class LancedbRecipeStore implements IRecipeStore {
 
       const table = await this._getTable();
 
-      console.error(`[paprika] Upserting ${recipes.length} recipes into LanceDB...`);
-      await table
-        .mergeInsert('uid')
-        .whenMatchedUpdateAll()
-        .whenNotMatchedInsertAll()
-        .execute(recipes.map(toRow));
-      console.error(`[paprika] Upsert complete`);
+      console.error(`[paprika] Writing ${recipes.length} recipes into LanceDB...`);
+      await table.add(recipes.map(toRow), { mode: 'overwrite' });
+      console.error(`[paprika] Write complete`);
 
       console.error(`[paprika] Creating FTS indexes...`);
-      await Promise.all(FTS_COLUMNS.map(column => {
+      for (const column of FTS_COLUMNS) {
         console.error(`[paprika]   Indexing column: ${column}`);
-        return table.createIndex(column, {
+        await table.createIndex(column, {
           config: lancedb.Index.fts({ withPosition: true }),
           replace: true,
         });
-      }));
+      }
       console.error(`[paprika] FTS indexes created`);
 
       console.error(`[paprika] Loaded ${await table.countRows()} recipes`);
