@@ -1,5 +1,14 @@
 # paprika-mcp-server
 
+## 2.1.3
+
+### Patch Changes
+
+- d693b97: Bump @rushstack/ts-command-line from 5.3.4 to 5.3.5
+- d693b97: Bump @types/node from 25.5.2 to 25.6.0
+- d693b97: Bump globals from 17.4.0 to 17.5.0
+- d693b97: Bump typescript-eslint from 8.58.0 to 8.58.1
+
 ## 2.1.2
 
 ### Patch Changes
