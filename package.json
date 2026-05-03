@@ -40,13 +40,13 @@
     "jest": "^30.3.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.58.2",
+    "typescript-eslint": "^8.59.0",
     "zod": "^4.3.6"
   },
   "dependencies": {
     "@lancedb/lancedb": "^0.27.2",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@rushstack/ts-command-line": "^5.3.8",
+    "@rushstack/ts-command-line": "^5.3.9",
     "jiti": "^2.6.1",
     "unzipper": "^0.12.3",
     "zod-to-json-schema": "^3.25.2"
