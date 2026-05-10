@@ -2,4 +2,4 @@
 "paprika-mcp-server": patch
 ---
 
-Bump globals from 17.4.0 to 17.6.0
+Bump zod from 4.3.6 to 4.4.2
