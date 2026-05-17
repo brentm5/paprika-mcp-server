@@ -2,4 +2,4 @@
 "paprika-mcp-server": patch
 ---
 
-Bump globals from 17.4.0 to 17.6.0
+Bump jiti from 2.6.1 to 2.7.0
