@@ -2,4 +2,4 @@
 "paprika-mcp-server": patch
 ---
 
-Bump eslint from 10.2.0 to 10.5.0
+Bump jiti from 2.6.1 to 2.7.0
