@@ -2,4 +2,4 @@
 "paprika-mcp-server": patch
 ---
 
-Bump globals from 17.4.0 to 17.7.0
+Bump unzipper from 0.12.3 to 0.12.5
