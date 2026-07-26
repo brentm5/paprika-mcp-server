@@ -2,4 +2,4 @@
 "paprika-mcp-server": patch
 ---
 
-Bump globals from 17.4.0 to 17.7.0
+Bump esbuild from 0.28.0 to 0.28.1
